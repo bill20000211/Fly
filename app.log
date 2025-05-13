@@ -1,0 +1,10 @@
+2025-05-13 21:29:15,310 -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2025-05-13 21:31:59,340 - Exception during reset or similar
+Traceback (most recent call last):
+  File "/Users/pengbaihao/anaconda3/envs/FlyNow/lib/python3.8/site-packages/sqlalchemy/pool/base.py", line 739, in _finalize_fairy
+    fairy._reset(pool)
+  File "/Users/pengbaihao/anaconda3/envs/FlyNow/lib/python3.8/site-packages/sqlalchemy/pool/base.py", line 988, in _reset
+    pool._dialect.do_rollback(self)
+  File "/Users/pengbaihao/anaconda3/envs/FlyNow/lib/python3.8/site-packages/sqlalchemy/engine/default.py", line 682, in do_rollback
+    dbapi_connection.rollback()
+pyodbc.OperationalError: ('08S01', '[08S01] [Microsoft][ODBC Driver 18 for SQL Server]TCP Provider: Error code 0x274C (10060) (SQLEndTran)')
