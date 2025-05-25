@@ -1,7 +1,7 @@
 """API模組，提供HTTP接口。"""
 
 from flask import Blueprint
-from .member import member_bp
+from .user import user_bp
 from .crawler import crawler_bp
 
 
@@ -9,7 +9,7 @@ from .crawler import crawler_bp
 api_bp = Blueprint('api', __name__, url_prefix='/')
 
 # 註冊子藍圖
-api_bp.register_blueprint(member_bp, url_prefix='/members')
+api_bp.register_blueprint(user_bp, url_prefix='/user')
 api_bp.register_blueprint(crawler_bp, url_prefix='/crawlers')
 
 

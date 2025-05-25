@@ -1,5 +1,5 @@
 from flask_login import LoginManager, UserMixin
-from model.member_dao import Member_dao
+from model.user_dao import User_dao
 
 # 建立 LoginManager 物件
 login_manager = LoginManager()
@@ -20,7 +20,7 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def user_loader(userid):
-    data = Member_dao.get_role(userid)
+    data = User_dao.get_role(userid)
     if not data:
         return None  # 如果查無此用戶，回傳 None
 
