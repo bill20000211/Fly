@@ -1,5 +1,5 @@
 from flask_login import LoginManager, UserMixin
-from model.user_dao import User_dao
+from Repository.user_dao import User_dao
 
 # 建立 LoginManager 物件
 login_manager = LoginManager()

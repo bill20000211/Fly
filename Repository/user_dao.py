@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from model.link import *
 import logging
 from model.sql import DB
+from model.UserModel import User  # 新增引用 User ORM
 
 # 設定 logging 設定
 logging.basicConfig(level=logging.DEBUG,
@@ -17,8 +18,8 @@ class User_dao():
     def get_member(account):
         sql = """
                 SELECT ACCOUNT, PASSWORD, ID, user_identity, NAME
-                  FROM MEMBER
-                 WHERE ACCOUNT = :account
+                FROM MEMBER
+                WHERE ACCOUNT = :account
               """
         session = DB.get_session()
         result = DB.execute(session, sql, {'account': account})
@@ -28,7 +29,7 @@ class User_dao():
     def get_all_account():
         sql = """
                 SELECT ACCOUNT 
-                  FROM MEMBER
+                FROM MEMBER
               """
         session = DB.get_session()
         result = DB.execute(session, sql)
@@ -37,9 +38,9 @@ class User_dao():
     @staticmethod
     def create_member(input):
         sql = """
-                INSERT INTO [USER] ( UserId, RoleCode, Account, Password, UserName, Sex, Email, Phone, IsDelete ) 
-                VALUES ( :UserId, :RoleCode, :Account, :Password, :UserName, :Sex, :Email, :Phone, :IsDelete )
-              """
+            INSERT INTO [USER] (UserId, RoleCode, Account, Password, UserName, Sex, Email, Phone, IsDelete)
+            VALUES (:UserId, :RoleCode, :Account, :Password, :UserName, :Sex, :Email, :Phone, :IsDelete)
+        """
         session = DB.get_session()
         DB.execute(session, sql, input)
         DB.commit(session)
@@ -48,9 +49,20 @@ class User_dao():
     def get_role(userid):
         sql = """
                 SELECT user_identity, NAME 
-                  FROM MEMBER 
-                 WHERE ID = :id
+                FROM MEMBER 
+                WHERE ID = :id
               """
         session = DB.get_session()
         result = DB.execute(session, sql, {'id': userid})
+        return DB.fetchone(result)
+
+    @staticmethod
+    def get_user_by_account(account):
+        sql = """
+            SELECT UserId, RoleCode, Account, Password, UserName, Sex, Email, Phone, IsDelete
+            FROM [USER]
+            WHERE Account = :account
+        """
+        session = DB.get_session()
+        result = DB.execute(session, sql, {'account': account})
         return DB.fetchone(result)

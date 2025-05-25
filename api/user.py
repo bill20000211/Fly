@@ -1,9 +1,13 @@
 import imp, uuid
 from flask import render_template, Blueprint, redirect, request, url_for, flash, jsonify, session
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+
+from AppStart import PermissionCheckService
 from model.link import *
-from model.user_dao import User_dao
+from model.UserModel import User
+from Repository.user_dao import User_dao
 import bcrypt
+
 from Utils.auth import User  # ✅ 引入 User 類別
 
 user_bp = Blueprint('user', __name__)
@@ -53,44 +57,35 @@ def login():
           application/json: { "status": "error", "message": "登入失敗" }
     """
     if request.method == 'POST':
-        # request body
         requestParams = request.get_json()
-
         account = requestParams['account']
         password = requestParams['password']
-        dbParams = User_dao.get_member(account)
-
-        if not dbParams:
+        # 使用 UserModel 查詢
+        user_obj = User_dao.get_user_by_account(account)
+        if not user_obj:
             return jsonify({'status': 'error', 'message': f'找不到帳號: {account} !'}), 400
 
-        try:
-            DB_password = dbParams[0][1]
-            user_id = dbParams[0][2]
-            identity = dbParams[0][3]
-            name = dbParams[0][4]
+        DB_password = user_obj.Password
+        user_id = user_obj.UserId
+        identity = user_obj.RoleCode
+        name = user_obj.UserName
 
-        except:
-            return jsonify({'status': 'error', 'message': f'找不到帳號: {account} !'}), 400
-
-         # 輸入的密碼轉bytes
         input_password = password.encode()
-
-        # DB抓出來的密碼轉bytes
         if isinstance(DB_password, str):
             DB_password = DB_password.encode()
         if not DB_password:
             return jsonify({'status': 'error', 'message': '密碼錯誤或帳號不存在 !'}), 400
-        # 驗證密碼
         is_correct = bcrypt.checkpw(input_password, DB_password)
 
-        if (is_correct):
+        if is_correct:
+            # 若有自訂 UserMixin 可用 user_obj
             user = User()
             user.id = user_id
             login_user(user)
-
-            if (identity == 'user'):
+            PermissionCheckService.setSession(session, user_id)
+            if identity == 'user':
                 return jsonify({'status': 'success', 'message': f'{name} ，歡迎 ! '}), 200
-            else:  # manager
+            else:
                 return jsonify({'status': 'success', 'message': f'{name} ，管理員登入 ! '}), 200
         else:
             return jsonify({'status': 'error', 'message': f'密碼錯誤 ! '}), 400
@@ -179,25 +174,23 @@ def register():
         sex = requestParams.get('sex')
         email = requestParams.get('email')
         phone = requestParams.get('phone')
-        is_delete = 0
+        is_delete = False
         user_id = str(uuid.uuid4())
-
-        # 這裡指定預設role_code
         default_role_code = 'user'
 
-        user_data = {
-            'UserId': user_id,
-            'RoleCode': default_role_code,
-            'Account': user_account,
-            'Password': hashed_password.decode(),
-            'UserName': requestParams['user_name'],
-            'Sex': sex,
-            'Email': email,
-            'Phone': phone,
-            'IsDelete': is_delete
-        }
+        user_obj = User(
+            UserId=user_id,
+            RoleCode=default_role_code,
+            Account=user_account,
+            Password=hashed_password.decode(),
+            UserName=requestParams['user_name'],
+            Sex=sex,
+            Email=email,
+            Phone=phone,
+            IsDelete=is_delete
+        )
 
-        User_dao.create_member(user_data)
+        User_dao.create_member(user_obj)
         return jsonify({'status': 'success', 'message': '註冊成功 ! '}), 200
 
 

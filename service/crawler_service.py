@@ -1,7 +1,7 @@
 from Utils.RawToJson import CrawlertoRawData_kkday, CrawlertoRawData_lion
 from Utils.ProductCrawler import crawler_kkday, crawler_lion
-from model.rawdata_dao import RawData_dao
-from model.user_dao import User_dao
+from Repository.rawdata_dao import RawData_dao
+from Repository.user_dao import User_dao
 
 
 class crawler_service():
